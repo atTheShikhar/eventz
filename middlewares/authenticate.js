@@ -3,7 +3,7 @@ require('dotenv').config({
 });
 const jwt = require('jsonwebtoken');
 
-const authenticate = async (req,res,next) => {
+const authenticate = idName => async (req,res,next) => {
     const token = req.cookies.jwt;
     
     jwt.verify(token,process.env.JWT_KEY,(error,decoded) => {
@@ -12,7 +12,7 @@ const authenticate = async (req,res,next) => {
         }
         req.body = {
             ...req.body,
-            createdBy: decoded._id
+            [idName]: decoded._id
         } 
         next();
     })

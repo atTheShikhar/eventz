@@ -2,10 +2,10 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const authRouter = require('./routes/auth.route');
-const createRouter = require('./routes/events.route');
+const eventsRouter = require('./routes/events.route');
+const ticketRouter = require('./routes/tickets.route');
 const dotenv = require('dotenv');
 const cookieParser = require('cookie-parser');
-
 //Initializing Enviroment variable
 dotenv.config({
     path: './configs/config.env'
@@ -39,16 +39,19 @@ app.use(cors());
 //     res.header("Access-Control-Allow-Headers","Content-Type");
 //     res.header("Access-Control-Allow-Credentials","true");
 //     if(req.method === "OPTIONS") {
-//         res.header("Access-Control-Allow-Methods","PUT,POST,GET,PATCH,DELETE");
-//         return res.status(200).json({});
-//     }
-//     next();
+    //         res.header("Access-Control-Allow-Methods","PUT,POST,GET,PATCH,DELETE");
+    //         return res.status(200).json({});
+    //     }
+    //     next();
 // })
+
+app.use(express.static('public'))
 
 //Routes
 app.use("/api",
     authRouter,
-    createRouter
+    eventsRouter,
+    ticketRouter
 );
 
 

@@ -1,12 +1,5 @@
 const mongoose = require("mongoose");
 
-const reqErr = (name) => {
-    return `${name} cannot be empty!`;
-}
-const maxLenErr = (name,num) => {
-    return `Maximum ${num} characters are allowed for ${name}`; 
-}
-
 const eventSchema = mongoose.Schema(
     {
        eventDetails: {
@@ -104,6 +97,10 @@ const eventSchema = mongoose.Schema(
            type: mongoose.ObjectId,
            required: true
        },
+       imageLocation: {
+           type: String,
+           required: false
+       }
     },
     {
         timestamps: {
@@ -113,19 +110,5 @@ const eventSchema = mongoose.Schema(
         collection: "events"
     }
 )
-
-// eventSchema.statics.eventExists = async function(eventData) {
-//     const eventExist = await this.findOne({
-//         eventDetails: eventData.eventDetails,
-//         eventAddress: eventData.eventAddress,
-//         eventOrganiser: eventData.eventOrganiser,
-//         createdBy: eventData.createdBy
-//     });
-//     if(eventExist) {
-//         throw Error("Already Created!");
-//     } else {
-//         return null;
-//     }
-// }
 
 module.exports = mongoose.model("NewEvent",eventSchema);
