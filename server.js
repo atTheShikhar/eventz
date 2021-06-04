@@ -2,8 +2,10 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const authRouter = require('./routes/auth.route');
+const metaRouter = require('./routes/meta.route');
 const eventsRouter = require('./routes/events.route');
 const ticketRouter = require('./routes/tickets.route');
+const adminRouter = require('./routes/admin.route');
 const dotenv = require('dotenv');
 const cookieParser = require('cookie-parser');
 //Initializing Enviroment variable
@@ -49,7 +51,9 @@ app.use(express.static('public'))
 
 //Routes
 app.use("/api",
+    adminRouter,
     authRouter,
+    metaRouter,
     eventsRouter,
     ticketRouter
 );

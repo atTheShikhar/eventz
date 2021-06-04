@@ -160,8 +160,10 @@ exports.loginController = async (req,res) => {
         return res.status(200).json({
             message: "Login Successfull!",
             user: {
+                type: "user",
                 name: fullName,
-                email: email
+                email: email,
+                id: _id
             }
         });
     } catch(err) {
