@@ -14,7 +14,7 @@ exports.validEvent = [
     validDate("eventDetails.dateAndTime","Date and Time","past"),
     validString(true,"eventAddress.apartment","Apartment",50),
     validString(true,"eventAddress.street","Street",100),
-    validText("eventAddress.city","City",40),
+    validText("eventAddress.district","District",40),
     validNum("eventAddress.pincode","Pincode",6),
     validText("eventAddress.stateName","State Name",100),
     validText("eventAddress.country","Country",100),

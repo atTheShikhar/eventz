@@ -21,6 +21,21 @@ const eventSchema = mongoose.Schema(
                trim: true,
                maxLength: 20
            },
+           duration: {
+               type: String,
+               required: true,
+               trim: true,
+           },
+           isFree: {
+               type: String,
+               required: true,
+               trim: true
+           },
+           price: {
+                type: String,
+                required: false,
+                trim: true
+           },
            dateAndTime: {
                type: Date, 
                required: true,
@@ -45,7 +60,7 @@ const eventSchema = mongoose.Schema(
                 trim: true,
                 maxLength: 100
             },
-            city: {
+            district: {
                 type: String,
                 required: true,
                 trim: true,
@@ -100,6 +115,11 @@ const eventSchema = mongoose.Schema(
        imageLocation: {
            type: String,
            required: false
+       },
+       status: {
+           type: String,
+           required: true,
+           trim: true
        }
     },
     {

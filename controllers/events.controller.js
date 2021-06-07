@@ -5,11 +5,25 @@ require('dotenv').config({
 });
 
 exports.createController = async (req,res) => {
-    const data = req.body;
+    let data = req.body;
+    let msg = "";
+    if(data.eventDetails.isFree === "Yes") {
+        data = {
+            ...data,
+            status: "approved"
+        }
+        msg = "Event created successfully!"
+    } else {
+        data = {
+            ...data,
+            status: "pending"
+        }
+        msg = "Event pending for approval!"
+    }
     try{
         const createEvent = new NewEvent(data);
         const created = await createEvent.save();
-        return res.status(201).json({message: "Event Created Successfully!", eventData: created})
+        return res.status(201).json({message: msg, eventData: created})
     } catch(err) {
         console.log(err);
         return res.status(500).json({error: err.message})
