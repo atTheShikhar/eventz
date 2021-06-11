@@ -69,7 +69,8 @@ exports.getEventsController = async (req,res) => {
                             $match: { 
                                 "eventDetails.dateAndTime": { 
                                     $gt: new Date() 
-                                }
+                                },
+                                "status": "approved"
                             }
                         },
                         {
@@ -81,7 +82,8 @@ exports.getEventsController = async (req,res) => {
                             $match: { 
                                 "eventDetails.dateAndTime": { 
                                     $gt: new Date() 
-                                }
+                                },
+                                "status": "approved"
                             },
                         },
                         {
@@ -138,22 +140,41 @@ exports.getEventsAuthController = async (req,res) => {
                     $lt: new Date()
                 }
             }).countDocuments();
-        } else {
+        } 
+        if(eventType === "upcoming") {
             userEvents = await NewEvent.find({
                 createdBy: id, 
                 "eventDetails.dateAndTime": {
                     $gt: new Date()
-                }
+                },
+                status: "approved"
             }).skip(skip).limit(PAGE_SIZE).sort({updated_at: -1});
     
             userEventsCount = await NewEvent.find({
                 createdBy: id, 
                 "eventDetails.dateAndTime": {
                     $gt: new Date()
-                }
+                },
+                status: "approved"
             }).countDocuments();
         } 
-
+        if(eventType === "pending") {
+            userEvents = await NewEvent.find({
+                createdBy: id, 
+                "eventDetails.dateAndTime": {
+                    $gt: new Date()
+                },
+                status: "pending"
+            }).skip(skip).limit(PAGE_SIZE).sort({updated_at: -1});
+    
+            userEventsCount = await NewEvent.find({
+                createdBy: id, 
+                "eventDetails.dateAndTime": {
+                    $gt: new Date()
+                },
+                status: "pending"
+            }).countDocuments();
+        }         
         const totalPages = Math.ceil(userEventsCount/PAGE_SIZE);
 
         return res.status(200).json({
