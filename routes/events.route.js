@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const authenticate = require('../middlewares/authenticate');
 const validate = require("../middlewares/validate");
-const validPosterUpload = require('../middlewares/validPosterUpload');
+const { validPosterUpload } = require('../middlewares/validImages');
 const { validEvent } = require('../helpers/event.validation');
 const {
     createController,

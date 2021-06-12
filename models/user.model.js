@@ -24,6 +24,10 @@ const userSchema = new mongoose.Schema(
         hashed_password: {
             type: String,
             required: true           
+        },
+        imageLocation: {
+            type: String,
+            required: false
         }
     },
     {

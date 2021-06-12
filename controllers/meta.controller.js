@@ -24,7 +24,6 @@ exports.eventsMetaController = async (req,res) => {
 }
 
 exports.addressMetaController = async (req,res) => {
-    //TODO: Implement get states and district logic
     const {get} = req.query;
     if(get==="states") {
         try {

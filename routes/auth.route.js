@@ -13,6 +13,13 @@ const {
     forgetPassword,
     resetPassword
 } = require("../controllers/auth.controller");
+const { 
+    getUserController, 
+    updateUserController,
+    uploadProfilePicController 
+} = require("../controllers/user.controller");
+
+const authenticate = require("../middlewares/authenticate");
 
 //Route for handling new signup request
 router.post("/register",validSignUp,validate,registerController);
@@ -25,5 +32,8 @@ router.post("/login",validLogin,validate,loginController);
 router.post("/forgetpassword",forgetPassword);
 router.put("/resetpassword",validPassword,validate,resetPassword);
 
+router.get("/user",authenticate("requestedBy"),getUserController);
+router.post("/user/upload",authenticate("uploadedBy"),uploadProfilePicController);
+router.post("/update/user",authenticate("requestedBy"),updateUserController)
 
 module.exports = router;

@@ -32,7 +32,8 @@ exports.createController = async (req,res) => {
 
 exports.eventImageController = async (req,res) => {
     try {
-        const upload = uploadSingle('eventPoster','public/uploads/events');
+        const saveFileName = "poster-"+req.params.id;
+        const upload = uploadSingle('eventPoster','public/uploads/events',saveFileName);
         upload(req,res,async function(err) {
             if(err) {
                 return res.status(400).json({error: err.message})

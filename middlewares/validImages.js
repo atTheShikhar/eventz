@@ -1,6 +1,6 @@
 const NewEvent = require('../models/events.model'); 
 
-const validPosterUpload = async (req,res,next) => {
+exports.validPosterUpload = async (req,res,next) => {
     try {
         const eventId = req.params.id;
         const eventData = await NewEvent.findById(eventId);
@@ -14,5 +14,3 @@ const validPosterUpload = async (req,res,next) => {
         return res.status(500).json({error: "Server Error :("});
     }
 }
-
-module.exports = validPosterUpload;

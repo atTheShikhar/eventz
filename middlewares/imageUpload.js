@@ -2,13 +2,13 @@ const multer = require('multer');
 const path = require('path');
 
 
-const uploadSingle = (fileName,destination) => {
+const uploadSingle = (fileName,destination,saveFileName) => {
     const storage = multer.diskStorage({
         destination: function(req,file,cb) {
             cb(null,destination);
         },
         filename: function(req,file,cb) {
-            cb(null,"poster-"+req.params.id+path.extname(file.originalname));
+            cb(null,saveFileName+path.extname(file.originalname));
         }
     });
 
