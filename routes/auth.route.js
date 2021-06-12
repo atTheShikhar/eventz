@@ -16,7 +16,8 @@ const {
 const { 
     getUserController, 
     updateUserController,
-    uploadProfilePicController 
+    uploadProfilePicController,
+    changePasswordController
 } = require("../controllers/user.controller");
 
 const authenticate = require("../middlewares/authenticate");
@@ -33,7 +34,19 @@ router.post("/forgetpassword",forgetPassword);
 router.put("/resetpassword",validPassword,validate,resetPassword);
 
 router.get("/user",authenticate("requestedBy"),getUserController);
+
 router.post("/user/upload",authenticate("uploadedBy"),uploadProfilePicController);
-router.post("/update/user",authenticate("requestedBy"),updateUserController)
+
+router.post("/user/changepassword",
+    validPassword,
+    validate,
+    authenticate("requestedBy"),
+    changePasswordController
+)
+
+router.post("/update/user",
+    authenticate("requestedBy"),
+    updateUserController
+)
 
 module.exports = router;

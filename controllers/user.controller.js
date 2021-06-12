@@ -48,3 +48,14 @@ exports.uploadProfilePicController = async (req,res) => {
 		return res.status(500).json({error: "Server Error!"});
 	}
 }
+exports.changePasswordController = async (req,res) => {
+	const id = req.body.requestedBy;
+	const {oldPassword,password} = req.body;
+	try {
+		const msg = await User.changePassword(id,oldPassword,password);				
+		return res.status(200).json({message: msg});
+	} catch (er) {
+		console.log(er);
+		return res.status(401).json({error: er.message});
+	}
+}

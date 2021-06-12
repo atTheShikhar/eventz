@@ -1,7 +1,7 @@
 // const { validationResult } = require("express-validator");
 const User = require("../models/user.model");
-const jwt = require('jsonwebtoken');
 const nodemailer = require("nodemailer");
+const jwt = require('jsonwebtoken');
 require('dotenv').config({
     path: "../configs/config.env"
 });

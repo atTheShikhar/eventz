@@ -63,5 +63,25 @@ userSchema.statics.login = async function(email,password) {
     throw Error("Invalid Login or Password");
 }
 
+userSchema.statics.changePassword = async function(id,oldPassword,password) {
+    try {
+        const user = await this.findById(id);
+        if (user) {
+            const result = await bcrypt.compare(oldPassword,user.hashed_password);
+            if(result === true) {
+                user.hashed_password = password;
+                await user.save();
+                const successMsg = "Password Updated Successfully!";
+                return successMsg;            
+            }
+            //Password didn't match
+            throw Error("Invalid credentials");
+        }
+        //User doesn't exists
+        throw Error("Invalid credentials");
+    } catch(e) {
+        throw Error("Invalid credentials")   
+    }
+}
 
 module.exports = mongoose.model('User',userSchema);
