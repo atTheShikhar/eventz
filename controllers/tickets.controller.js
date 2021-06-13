@@ -1,5 +1,4 @@
 const Ticket = require('../models/tickets.model');
-// const User = require('../models/user.model');
 const NewEvent = require('../models/events.model');
 
 exports.bookTicketsController = async (req,res) => {
@@ -9,13 +8,21 @@ exports.bookTicketsController = async (req,res) => {
         if(count < 1 || count > 5) {
             return res.status(400).json({error: "Invalid ticket request!"});
         }
-        const eventDetails = await NewEvent.findById(eventId);
-        console.log(eventDetails);
-        if(Boolean(eventDetails)) {
-            if(eventDetails.createdBy == requestedBy) {
+        const eventData = await NewEvent.findById(eventId);
+
+        if(Boolean(eventData)) {
+            if(eventData.createdBy == requestedBy) {
                 return res.status(400).json({error: "You are the organiser of this event!"})
             }
             
+            //Check if available that max no of bookings done
+            const noOfPeople = eventData.eventDetails.noOfPeople.split(" ")[1];
+            const max = parseInt(noOfPeople)
+            const currentTotalTickets = await Ticket.find({eventId: eventId}).countDocuments();
+            if(((currentTotalTickets??0) + count) > max) {
+                return res.status(400).json({error: "Sorry, All tickets are booked for this event!"})
+            }
+
             const tickets = await Ticket.find({userId: requestedBy, eventId: eventId}).countDocuments();
             const totalTickets = (tickets??0) + count;
             if(totalTickets > 5) {

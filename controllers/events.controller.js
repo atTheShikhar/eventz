@@ -54,55 +54,47 @@ exports.eventImageController = async (req,res) => {
 exports.getEventsController = async (req,res) => {
     try {
         const pageNum = parseInt(req.query.page,10) || 1; 
+        const {search,type} = req.query;
         const PAGE_SIZE = 12; // Maximum number of documents returned at each request
         const skip = (pageNum - 1) * PAGE_SIZE;
-       
-        /*
-        Returns the number of events (query1) 
-        and the event details (query2) 
-        that are sheduled after the time at which the request is made
-        */
-        const queries = await NewEvent.aggregate([
-            {
-                $facet: {
-                    query1: [
-                        {
-                            $match: { 
-                                "eventDetails.dateAndTime": { 
-                                    $gt: new Date() 
-                                },
-                                "status": "approved"
-                            }
-                        },
-                        {
-                            $count: "totalEvents"
-                        }
-                    ], 
-                    query2: [
-                        { 
-                            $match: { 
-                                "eventDetails.dateAndTime": { 
-                                    $gt: new Date() 
-                                },
-                                "status": "approved"
-                            },
-                        },
-                        {
-                            $sort: { "updated_at": -1 }
-                        }, 
-                        { 
-                            $skip: skip 
-                        },
-                        { 
-                            $limit: PAGE_SIZE 
-                        }
-                    ]
-                }
-            }
-        ]);
 
-        const totalPages = Math.ceil(queries[0].query1[0].totalEvents / PAGE_SIZE); 
-        const events = queries[0].query2;
+        let query = {
+            "eventDetails.dateAndTime": {
+                $gt: new Date()
+            },
+            status: "approved"
+        }
+        if(type) {
+            if(type === "free")   
+                query["eventDetails.isFree"] = "Yes"
+            if(type === "paid")
+                query["eventDetails.isFree"] = "No"
+        }
+        if(search) {
+            const regexQuery = new RegExp(search); 
+            query["$or"] = [
+                {
+                    "eventDetails.title": {$regex: regexQuery, $options: "i"}
+                },
+                {
+                    "eventDetails.description": {$regex: regexQuery, $options: "i"}
+                },
+                {
+                    "eventDetails.genre": {$regex: regexQuery, $options: "i"}
+                }
+            ]            
+        }
+
+        const allEvents = await NewEvent.find(query)
+            .skip(skip)
+            .limit(PAGE_SIZE)
+            .sort({updated_at: -1});
+
+        const allEventsCount = await NewEvent.find(query)
+            .countDocuments();
+
+        const totalPages = Math.ceil(allEventsCount / PAGE_SIZE); 
+        const events = allEvents;
 
         return res.status(200).json({
             currentPage: pageNum,

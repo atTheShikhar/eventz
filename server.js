@@ -4,6 +4,7 @@ const cors = require('cors');
 const authRouter = require('./routes/auth.route');
 const metaRouter = require('./routes/meta.route');
 const eventsRouter = require('./routes/events.route');
+const searchRouter = require('./routes/search.route');
 const ticketRouter = require('./routes/tickets.route');
 const adminRouter = require('./routes/admin.route');
 const dotenv = require('dotenv');
@@ -56,7 +57,8 @@ app.use("/api",
     authRouter,
     metaRouter,
     eventsRouter,
-    ticketRouter
+    ticketRouter,
+    searchRouter
 );
 
 
