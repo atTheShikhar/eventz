@@ -132,11 +132,8 @@ exports.verifyPaymentWebhookController = async (req,res) => {
 	shasum.update(JSON.stringify(req.body))
 	const digest = shasum.digest('hex')
 
-	// console.log(digest, req.headers['x-razorpay-signature'])
-
     try {
         if ((digest === req.headers['x-razorpay-signature']) && (status==="captured")) {
-            // process it
             await Payments.findOneAndUpdate({
                 order_id,
                 amount
@@ -147,7 +144,6 @@ exports.verifyPaymentWebhookController = async (req,res) => {
                 payment_id: id
             }); 
         } else {
-            // pass it
             await Payments.findOneAndUpdate({
                 order_id,
                 amount
@@ -167,26 +163,34 @@ exports.fetchTicketsController = async (req,res) => {
     try {
         const { requestedBy } = req.body;
         const tickets = await Ticket.find({userId: requestedBy});
+        
         const ticketCount = tickets.length;
 
-        // let uniqueEventIds = [];
-        // for(let i=0;i<ticketCount;i++) {
-        //     const id = tickets[i].eventId; 
-        //     if(i==0) {
-        //         uniqueEventIds.push(id);
-        //     } else {
-        //         if(id != uniqueEventIds[i-1])
-        //             uniqueEventIds.push(id);
-        //     }
-        // }
-        let eventDetails = [];
-        for(let i=0;i<ticketCount;i++) {
-            const ticket = tickets[i];
-            const details = await NewEvent.findById(ticket.eventId);
-            eventDetails.push(details);
+        //Extract unique eventids from all the tickets since a user can have multiple tickets for the same event
+        const uniqueEventIds = tickets
+            .map(item => (item.eventId.toString()))
+            .reduce(
+                (unique,item) => (unique.includes(item) ? unique : [...unique,item]),
+                []
+            )
+
+        let eventData = [];
+        for(let i=0;i<uniqueEventIds.length;i++) {
+            const eventId = uniqueEventIds[i];
+            const data = await NewEvent.findById(eventId);
+            eventData.push(data);
         }
 
-        return res.json({count: ticketCount,tickets,eventDetails});
+        const ticketData = eventData.map(item => {
+            const eventId = item._id.toString();
+            const ticketsForEachEvent = tickets.filter(item => (item.eventId.toString() === eventId));
+            return ({
+                tickets: ticketsForEachEvent,
+                eventInfo: item,
+            });
+        })
+
+        return res.json({totalTickets: ticketCount,ticketData});
 
     } catch(e) {
         console.log(e);

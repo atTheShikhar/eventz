@@ -16,7 +16,9 @@ router.post("/book-tickets",
 	bookFreeTicketsController,
 	bookPaidTicketsController
 )
-router.post("/verify-payments",verifyPaymentController);
+//This route is called by the client to verify the payment 
+router.post("/verify-payments",authenticate("requestedBy"),verifyPaymentController);
+//This webhook is called by razorpay to verify paymentes
 router.post("/verify-payments-webhook",verifyPaymentWebhookController);
 
 router.post("/my-tickets",authenticate("requestedBy"),fetchTicketsController);
