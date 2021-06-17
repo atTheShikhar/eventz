@@ -28,6 +28,14 @@ const userSchema = new mongoose.Schema(
         imageLocation: {
             type: String,
             required: false
+        },
+        createdEvents: {
+            type: [mongoose.ObjectId],
+            required: false
+        },
+        bookedEvents: {
+            type: [mongoose.ObjectId],
+            required: false
         }
     },
     {

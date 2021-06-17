@@ -1,6 +1,7 @@
 const Messages = require('../../models/messages.model');
 const NewEvent = require('../../models/events.model')
 const User = require('../../models/user.model');
+const Ticket = require('../../models/tickets.model');
 
 exports.getMessagesController = async (req,res) => {
     const {type} = req.query;
@@ -26,8 +27,6 @@ exports.getMessagesController = async (req,res) => {
             time: new Date(message.created_at).toLocaleTimeString()
         }));
         
-        // console.log(messageData)
-
         return res.status(200).json({
             length,
             messages: messageData
@@ -41,7 +40,7 @@ exports.deleteMessageController = async (req,res) => {
     const {id} = req.body;
     try {
         const status = await Messages.deleteOne({_id: id});
-        console.log(status);
+        // console.log(status);
         return res.status(200).json({message: "Message Deleted Successfully"});
     } catch(err) {
         console.log(err)
@@ -112,8 +111,21 @@ exports.approveDeleteEventsController = async (req,res) => {
             return res.status(200).json({message: "Event Approved Successfully!"});
         }
         if(action==="Delete") {
-            const response = await NewEvent.findByIdAndRemove(id);
-            // console.log(response)
+            const removedEvent = await NewEvent.findByIdAndRemove(id);
+
+            //Delete events form organisers created Events
+            await User.findByIdAndUpdate(removedEvent.createdBy,{ $pull: {
+                    "createdEvents": id
+            }})
+            
+            //Delete events from attenders booked events
+            await User.updateMany({bookedEvents: id},{ $pull: {
+                "bookedEvents": id
+            }})
+
+            //Delete all tickets for that event
+            await Ticket.deleteMany({eventId: id});
+
             return res.status(200).json({message: "Event Deleted Successfully!"});
         }
 
@@ -128,18 +140,21 @@ exports.getUsersController = async (req,res) => {
     try {
         const users = await User.find({});
         const length = users.length;
-        const userWithoutPassword = users.map(item => {
+
+        const userWithoutPassword = users.map((item,index) => {
+            const createdAt = new Date(item.created_at).toLocaleString();
             return {
-                name: item.name,
                 _id: item._id,
+                name: item.name.fname+" "+item.name.lname,
                 email: item.email,
-                created_at: item.created_at,
-                updated_at: item.updated_at
+                createdAt: createdAt,
+                createdEvents: item.createdEvents.length,
+                bookedEvents: item?.bookedEvents?.length
             };
         })
         return res.status(200).json({
             length,
-            userWithoutPassword
+            users: userWithoutPassword
         })
     } catch(e) {
         console.log(e);

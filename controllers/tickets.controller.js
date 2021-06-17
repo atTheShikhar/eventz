@@ -1,7 +1,8 @@
 const Ticket = require('../models/tickets.model');
 const NewEvent = require('../models/events.model');
 const Payments = require("../models/payments.model");
-const shortid = require('shortid')
+const User = require("../models/user.model");
+const { nanoid } = require('nanoid');
 const Razorpay = require('razorpay');
 const generateTickets = require('../helpers/generateTickets');
 require('dotenv').config({
@@ -14,9 +15,16 @@ exports.bookFreeTicketsController = async (req,res,next) => {
         // return res.json({status: "OK"});
         
         if(isFree === "Yes") {
-            const {requestedBy,eventId,count,totalTickets} = req.body;
+            const {requestedBy,eventId,count,} = req.body;
             
             const createdTickets = await generateTickets(count,requestedBy,eventId);
+
+            //Update Booked events in user data
+            await User.findByIdAndUpdate(requestedBy,{
+                $push: {
+                    bookedEvents: eventId
+                }
+            })
 
             return res.status(200).json({
                 message: "Tickets booked successfully!",
@@ -34,7 +42,7 @@ exports.bookFreeTicketsController = async (req,res,next) => {
 }
 exports.bookPaidTicketsController = async (req,res) => {
     const { price,title } = req.body.eventData.eventDetails;
-    const { requestedBy,count,eventId,totalTickets } = req.body;
+    const { requestedBy,count,eventId,} = req.body;
     const amountInRs = parseInt(price);
 
     const payment_capture = 1
@@ -45,7 +53,7 @@ exports.bookPaidTicketsController = async (req,res) => {
     const options = {
         amount: totalAmountInPaise,
         currency,
-        receipt: shortid.generate(),
+        receipt: nanoid(),
         payment_capture
     }
 
@@ -98,9 +106,18 @@ exports.verifyPaymentController = async (req,res) => {
                 amount_due: 0,
                 payment_id: payment_id
             });
+
             const {user_id,event_id,ticket_count} = paymentDetails; 
             //Generate tickets
             const createdTickets = await generateTickets(ticket_count,user_id,event_id);
+
+            //Update Booked events in user data
+            await User.findByIdAndUpdate(user_id,{
+                $push: {
+                    bookedEvents: event_id
+                }
+            })
+
             return res.status(200).json({
                 message: "Tickets booked successfully!",
                 createdTickets: createdTickets

@@ -1,4 +1,5 @@
 const NewEvent = require('../models/events.model');
+const User = require('../models/user.model');
 const uploadSingle = require('../middlewares/imageUpload');
 require('dotenv').config({
     path: "../configs/config.env"
@@ -23,6 +24,13 @@ exports.createController = async (req,res) => {
     try{
         const createEvent = new NewEvent(data);
         const created = await createEvent.save();
+        //Push the eventId to user collection
+        const updateUserData = await User.findByIdAndUpdate(req.body.createdBy,{
+            $push: {
+                createdEvents: created._id
+            }
+        });
+
         return res.status(201).json({message: msg, eventData: created})
     } catch(err) {
         console.log(err);
