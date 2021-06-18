@@ -5,7 +5,8 @@ const {
 	getEventsController,
 	approveDeleteEventsController, 
 	getUsersController, 
-	deleteMessageController 
+	deleteMessageController, 
+	deleteUsersController
 } = require('../controllers/admin/data.controller');
 const authenticateAdmin = require('../middlewares/authenticateAdmin');
 const router = express.Router();
@@ -21,6 +22,7 @@ router.post('/admin/approve/event',authenticateAdmin,approveDeleteEventsControll
 router.post('/admin/delete/event',authenticateAdmin,approveDeleteEventsController);
 
 router.post('/admin/users',authenticateAdmin,getUsersController);
+router.post('/admin/delete/user',authenticateAdmin,)
 
 
 module.exports = router;

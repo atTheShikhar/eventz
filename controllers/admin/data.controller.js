@@ -50,6 +50,7 @@ exports.deleteMessageController = async (req,res) => {
 
 exports.getEventsController = async (req,res) => {
     const {type} = req.query;
+    const {userId,eventId} = req.body;
 
     let query = {}
     if(type === "Pending") {
@@ -57,6 +58,12 @@ exports.getEventsController = async (req,res) => {
     } 
     if(type === "Approved") {
         query.status = "approved";
+    }
+    if(userId) {
+        query.createdBy = userId;
+    }
+    if(eventId) {
+        query._id = eventId;
     }
 
     try {
@@ -111,6 +118,16 @@ exports.approveDeleteEventsController = async (req,res) => {
             return res.status(200).json({message: "Event Approved Successfully!"});
         }
         if(action==="Delete") {
+            //Check if it is a paid event and have some bookings
+            const eventData = await NewEvent.findById(id,{eventDetails: 1}); 
+
+            if(eventData?.eventDetails?.isFree === "No") {
+                const ticketCount = await Ticket.find({eventId: id}).countDocuments();
+                if(ticketCount > 0) {
+                    return res.status(400).json({error: "Cannot delete paid events with bookings!"});
+                }
+            } 
+            
             const removedEvent = await NewEvent.findByIdAndRemove(id);
 
             //Delete events form organisers created Events
@@ -148,14 +165,52 @@ exports.getUsersController = async (req,res) => {
                 name: item.name.fname+" "+item.name.lname,
                 email: item.email,
                 createdAt: createdAt,
-                createdEvents: item.createdEvents.length,
-                bookedEvents: item?.bookedEvents?.length
+                createdEvents: item?.createdEvents,
+                bookedEvents: item?.bookedEvents,
+                imageLocation: item?.imageLocation
             };
         })
         return res.status(200).json({
             length,
             users: userWithoutPassword
         })
+    } catch(e) {
+        console.log(e);
+        return res.status(500).json({error: "Server Error"})
+    }
+}
+exports.deleteUsersController = async (req,res) => {
+    const { id } = req.body;
+    try {
+        const eventData = await User.findById(id,{createdEvents: 1, bookedEvents: 1});
+        
+        const createdEvents = eventData?.createdEvents;
+        const bookedEvents = eventData?.bookedEvents;
+
+        if(createdEvents?.length > 0) {
+            for(let i=0;i<createdEvents?.length;i++) {
+                const eventId = createdEvents[i];
+                const countTickets = await Ticket.find({eventId: eventId}).countDocuments();
+                if(countTickets > 0) {
+                    return res.status(400).json({error: "Cannot delete user whose events are booked!"});
+                }
+            }
+        }
+
+        if(bookedEvents?.length > 0) {
+            for(let i=0;i<bookedEvents?.length;i++) {
+                const eventId = bookedEvents[i];
+                const { eventDetails } = await NewEvent.findById(eventId,{eventDetails: 1});
+                if(eventDetails?.isFree === "No")
+                    return res.status(400).json({error: "Cannot delete user with paid bookings!"});
+            }            
+        }
+
+        await User.findByIdAndRemove(id);
+
+        await NewEvent.deleteMany({createdBy: id})
+
+        return res.status(200).json({message: "User Deleted Successfully!"})
     } catch(e) {
         console.log(e);
         return res.status(500).json({error: "Server Error"})
