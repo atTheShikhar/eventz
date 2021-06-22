@@ -200,7 +200,7 @@ exports.fetchTicketsController = async (req,res) => {
 
         const ticketData = eventData.map(item => {
             const eventId = item._id.toString();
-            const ticketsForEachEvent = tickets.filter(item => (item.eventId.toString() === eventId));
+            const ticketsForEachEvent = tickets.filter(i => (i.eventId.toString() === eventId));
             return ({
                 tickets: ticketsForEachEvent,
                 eventInfo: item,
@@ -209,6 +209,63 @@ exports.fetchTicketsController = async (req,res) => {
 
         return res.json({totalTickets: ticketCount,ticketData});
 
+    } catch(e) {
+        console.log(e);
+        return res.status(500).json({error: "Server Error :("});
+    }
+}
+
+exports.getBookingsByEventsController = async (req,res) => {
+    const { eventId } = req.body; 
+
+    if(eventId == null) {
+        return res.status(400).json({error: "eventId not received!"});
+    }
+
+    try {
+        const tickets = await Ticket.find({eventId: eventId});
+    
+        if(tickets.length > 0) {
+            const ticketUsers = [...new Set(tickets.map(item => item.userId.toString()))] 
+
+            let bookingsData = [];
+            for(let i=0;i<ticketUsers.length;i++) {
+                const userId = ticketUsers[i];
+
+                const userData = await User.findById(userId,{
+                    name: 1,
+                    email: 1,
+                    _id: 1,
+                    imageLocation: 1,
+                    created_at: 1
+                });
+
+                const ticketCount = tickets.reduce((count,item) => {
+                    return (item.userId.toString() === userId) ? ++count : count;
+                },0);
+
+                const ticketsAndUsers = {
+                    ticketCount,
+                    user: userData                    
+                }
+                bookingsData.push(ticketsAndUsers);
+            }
+
+            const ticketBookings = bookingsData.map((item) => {
+                return {
+                    ticketCount: item.ticketCount,
+                    name: item.user.name.fname + " " + item.user.name.lname,
+                    email: item.user.email,
+                    _id: item.user._id,
+                    // imageLocation: item?.user?.imageLocation,
+                    joinedOn: new Date(item.user.created_at).toDateString()
+                }
+            });
+
+            return res.status(200).json(ticketBookings);
+        }
+        //No Bookings
+        return res.status(200).json([]);
     } catch(e) {
         console.log(e);
         return res.status(500).json({error: "Server Error :("});

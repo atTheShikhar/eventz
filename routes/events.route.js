@@ -8,8 +8,11 @@ const {
     createController,
     getEventsController,
     getEventsAuthController,
-    eventImageController
+    eventImageController,
 } = require('../controllers/events.controller');
+const {
+    getBookingsByEventsController
+} = require('../controllers/tickets.controller');
 
 router.post("/create-event",
     authenticate("createdBy"),
@@ -28,5 +31,10 @@ router.post("/get-events-auth",
     authenticate("requestedBy"),
     getEventsAuthController
 );
+
+router.post("/get-bookings",
+    authenticate("requestedBy"),
+    getBookingsByEventsController
+)
 
 module.exports = router;

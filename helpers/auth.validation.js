@@ -17,6 +17,10 @@ exports.validLogin = [
     validPass("password")
 ]
 
+exports.validEmailId = [
+    validEmail("email")
+]
+
 exports.validPassword = [
     validPass("password")
 ]

@@ -152,6 +152,38 @@ exports.approveDeleteEventsController = async (req,res) => {
         return res.status(500).json({error: "Server Error"})
     }
 }
+//Takes eventId returns the corresponding event
+exports.getEventByIdController = async (req,res) => {
+    const id = req?.params?.id;
+    if(id == null) {
+        return res.status(400).json({error: "Event Id not received!"})
+    } 
+
+    try {
+        const eventData = await NewEvent.findById(id);
+        return res.status(200).json(eventData);
+    } catch(e) {
+        console.log(e);
+        return res.status(500).json({error: "Server Error"})
+    }
+}
+//Takes a update document and eventId and performs the update on the event data
+exports.updateEventController = async (req,res) => {
+    const {eventId,updateField,update} = req.body;
+    if(updateField == null || eventId == null || update == null) {
+        return res.status(400).json({error: "Invalid Request"});
+    }
+
+    try {        
+        const eventData = await NewEvent.findById(eventId);
+        eventData[updateField] = {...eventData[updateField],...update};
+        await eventData.save();
+        return res.status(200).json({message: "Updated Successfully!"});
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({error: "Server Error"})
+    }
+}
 
 exports.getUsersController = async (req,res) => {
     try {

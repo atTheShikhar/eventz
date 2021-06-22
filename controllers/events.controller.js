@@ -1,5 +1,6 @@
 const NewEvent = require('../models/events.model');
 const User = require('../models/user.model');
+const Ticket = require('../models/tickets.model');
 const uploadSingle = require('../middlewares/imageUpload');
 require('dotenv').config({
     path: "../configs/config.env"
@@ -102,7 +103,25 @@ exports.getEventsController = async (req,res) => {
             .countDocuments();
 
         const totalPages = Math.ceil(allEventsCount / PAGE_SIZE); 
-        const events = allEvents;
+
+        let ticketsPerEvent = [];
+        if(allEvents.length > 0) {
+            for(let i=0;i<allEvents.length;i++) {
+                const eventData = allEvents[i];
+                const ticketCount = await Ticket.find({eventId: eventData._id}).countDocuments();
+                ticketsPerEvent.push(ticketCount);
+            }
+        }
+
+        const events = allEvents.map((item,index) => {
+            const totalTickets = parseInt(item.eventDetails.noOfPeople.split(" ")[1]);
+            const bookedTickets = ticketsPerEvent[index];
+            return {
+                ...item._doc,
+                totalTickets,
+                bookedTickets 
+            }
+        });
 
         return res.status(200).json({
             currentPage: pageNum,
@@ -178,11 +197,30 @@ exports.getEventsAuthController = async (req,res) => {
         }         
         const totalPages = Math.ceil(userEventsCount/PAGE_SIZE);
 
+        let ticketsPerEvent = [];
+        if(userEvents.length > 0) {
+            for(let i=0;i<userEvents.length;i++) {
+                const eventData = userEvents[i];
+                const ticketsCount = await Ticket.find({eventId: eventData._id}).countDocuments();
+                ticketsPerEvent.push(ticketsCount);
+            }
+        }
+
+        const events = userEvents.map((item,index) => {
+            const totalTickets = parseInt(item.eventDetails.noOfPeople.split(" ")[1]);
+            const bookedTickets = ticketsPerEvent[index];
+            return {
+                ...item._doc,
+                totalTickets,
+                bookedTickets 
+            }
+        });     
+
         return res.status(200).json({
             currentPage: pageNum,
             totalPages,
             eventCount: userEvents.length,
-            events: userEvents
+            events
         })
     } catch (err) {
         console.log(err);
