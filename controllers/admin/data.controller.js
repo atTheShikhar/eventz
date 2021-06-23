@@ -112,12 +112,12 @@ exports.approveDeleteEventsController = async (req,res) => {
     const {id,action} = req.body;
     try {
 
-        if(action==="Approve") {
+        if(action==="approve") {
             const response = await NewEvent.findByIdAndUpdate(id,{status: "approved"});
             // console.log(response)
             return res.status(200).json({message: "Event Approved Successfully!"});
         }
-        if(action==="Delete") {
+        if(action==="delete") {
             //Check if it is a paid event and have some bookings
             const eventData = await NewEvent.findById(id,{eventDetails: 1}); 
 
@@ -169,6 +169,7 @@ exports.getEventByIdController = async (req,res) => {
 }
 //Takes a update document and eventId and performs the update on the event data
 exports.updateEventController = async (req,res) => {
+    //TODO: Modify the logic
     const {eventId,updateField,update} = req.body;
     if(updateField == null || eventId == null || update == null) {
         return res.status(400).json({error: "Invalid Request"});

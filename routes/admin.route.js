@@ -10,6 +10,7 @@ const {
 	getEventByIdController,
 	updateEventController
 } = require('../controllers/admin/data.controller');
+const { getTicketsCountController } = require('../controllers/admin/tickets.controller');
 const { sendEmailController } = require('../controllers/admin/email.controller');
 const { validEmailId } = require('../helpers/auth.validation');
 const authenticateAdmin = require('../middlewares/authenticateAdmin');
@@ -24,6 +25,7 @@ router.post('/admin/messages',authenticateAdmin,getMessagesController);
 router.post('/admin/delete/message',authenticateAdmin,deleteMessageController);
 
 router.get('/admin/event/:id',authenticateAdmin,getEventByIdController);
+router.get('/admin/event/get-tickets-count/:id',authenticateAdmin,getTicketsCountController)
 router.post('/admin/events',authenticateAdmin,getEventsController);
 router.post('/admin/event/update',authenticateAdmin,updateEventController);
 router.post('/admin/approve/event',authenticateAdmin,approveDeleteEventsController);
