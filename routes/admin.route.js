@@ -15,6 +15,7 @@ const { sendEmailController } = require('../controllers/admin/email.controller')
 const { validEmailId } = require('../helpers/auth.validation');
 const authenticateAdmin = require('../middlewares/authenticateAdmin');
 const validate = require('../middlewares/validate');
+const { getPaymentsController } = require('../controllers/admin/payments.controller');
 const router = express.Router();
 
 
@@ -34,5 +35,6 @@ router.post('/admin/delete/event',authenticateAdmin,approveDeleteEventsControlle
 router.post('/admin/users',authenticateAdmin,getUsersController);
 router.post('/admin/delete/user',authenticateAdmin,deleteUsersController)
 
+router.get('/admin/payments',authenticateAdmin,getPaymentsController);
 
 module.exports = router;

@@ -148,9 +148,9 @@ exports.activationController = async (req,res) => {
 exports.loginController = async (req,res) => {
     const {email,password} = req.body;
     try {
-        const { _id,fullName } = await User.login(email,password);
+        const userdata = await User.login(email,password);
         const maxAge = 24 * 60 * 60; //1day
-        const token = jwt.sign({ _id }, process.env.JWT_KEY, { expiresIn: maxAge });
+        const token = jwt.sign({ _id: userdata?._id }, process.env.JWT_KEY, { expiresIn: maxAge });
         res.cookie('jwt', token, { 
             maxAge: maxAge * 1000,
             // httpOnly: false, 
@@ -161,9 +161,10 @@ exports.loginController = async (req,res) => {
             message: "Login Successfull!",
             user: {
                 type: "user",
-                name: fullName,
-                email: email,
-                id: _id
+                name: userdata?.fullName,
+                email: userdata?.email,
+                id: userdata?._id,
+                imageLocation: userdata?.imageLocation
             }
         });
     } catch(err) {

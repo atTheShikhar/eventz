@@ -14,6 +14,10 @@ const ticketSchema = new mongoose.Schema(
             type: mongoose.ObjectId,
             required: true
         },
+        availed: {
+            type: String,
+            required: false   
+        }
     },
     {
         timestamps: {
