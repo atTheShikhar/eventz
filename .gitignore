@@ -1,4 +1,4 @@
 *.env
-configs
+configs/*.env
 public
 node_modules
