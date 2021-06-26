@@ -4,6 +4,7 @@ const User = require('../../models/user.model');
 exports.getPaymentsController = async (req,res) => {
     const status = req?.query?.type;
     const eventId = req?.query?.eventId;
+    const userId = req?.query?.userId;
 
     let query = {};
     if(status === 'pending' || status === "captured" || status === "failed") 
@@ -12,6 +13,9 @@ exports.getPaymentsController = async (req,res) => {
     if(eventId != null) 
         query.event_id = eventId;
 
+    if(userId != null)
+        query.user_id = userId;
+
 
     try {
         const payments = await Payments.find(query);
@@ -19,8 +23,7 @@ exports.getPaymentsController = async (req,res) => {
         let usersData = [];
         for(let i=0;i<payments.length;i++) {
             const payment = payments[i];
-            const userInfo = await User.findById(payment.user_id,{name: 1,email: 1,
-                created_at: 1,imageLocation: 1});
+            const userInfo = await User.findById(payment.user_id);
             usersData.push(userInfo);
         }
 

@@ -85,14 +85,12 @@ exports.getEventsController = async (req,res) => {
 
             const createdAt = `${new Date(updated_at).toLocaleString()}`
             const price = eventDetails.isFree === "No" ? eventDetails.price : "FREE";
-            const organiserContact = `Phone: ${eventOrganiser.phone}, Email: ${eventOrganiser.email}`
             return {
                 _id: _id,
                 title: eventDetails.title,
                 address: address,
                 createdAt: createdAt,
                 organiserName: eventOrganiser.organiserName,
-                organiserContact: organiserContact,
                 noOfPeople: eventDetails.noOfPeople,
                 price: price,
                 status: status,
