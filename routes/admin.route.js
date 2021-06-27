@@ -33,7 +33,7 @@ router.post('/admin/event/update',authenticateAdmin,updateEventController);
 router.post('/admin/approve/event',authenticateAdmin,approveDeleteEventsController);
 router.post('/admin/delete/event',authenticateAdmin,approveDeleteEventsController);
 
-router.post('/admin/users',authenticateAdmin,getUsersController);
+router.get('/admin/users',authenticateAdmin,getUsersController);
 router.post('/admin/users/bookings',authenticateAdmin,fetchTicketsController);
 router.post('/admin/delete/user',authenticateAdmin,deleteUsersController)
 

@@ -131,4 +131,6 @@ const eventSchema = mongoose.Schema(
     }
 )
 
+eventSchema.index({'$**': 'text'});
+
 module.exports = mongoose.model("NewEvent",eventSchema);

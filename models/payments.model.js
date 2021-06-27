@@ -60,4 +60,6 @@ const paymentSchema = new mongoose.Schema(
     }
 )
 
+paymentSchema.index({'$**': 'text'});
+
 module.exports = mongoose.model("Payments",paymentSchema);

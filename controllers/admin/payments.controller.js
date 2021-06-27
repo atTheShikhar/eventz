@@ -5,6 +5,7 @@ exports.getPaymentsController = async (req,res) => {
     const status = req?.query?.type;
     const eventId = req?.query?.eventId;
     const userId = req?.query?.userId;
+    const search = req?.query?.search;
 
     let query = {};
     if(status === 'pending' || status === "captured" || status === "failed") 
@@ -18,7 +19,7 @@ exports.getPaymentsController = async (req,res) => {
 
 
     try {
-        const payments = await Payments.find(query);
+        const payments = await Payments.find(query).sort({"updated_at": -1});
 
         let usersData = [];
         for(let i=0;i<payments.length;i++) {
@@ -40,6 +41,23 @@ exports.getPaymentsController = async (req,res) => {
                 joinedOn: usersData[idx].created_at
             }
         });
+        
+        if(search) {
+            const includesNoCase = (str1,str2) => {
+                const lowerStr1 = str1.toLowerCase();
+                const lowerStr2 = str2.toLowerCase();
+                return lowerStr1.includes(lowerStr2);
+            }
+            const searchData = paymentData.filter((item,idx) => {
+                return (includesNoCase(item?.name,search) || 
+                    includesNoCase(item?.email,search) ||
+                    includesNoCase(item?.description,search) ||
+                    includesNoCase(item?.ticket_count?.toString(),search) ||
+                    includesNoCase(item?.amount?.toString(),search)
+                )
+            });
+            return res.status(200).json(searchData);
+        }
 
         return res.status(200).json(paymentData);
     } catch (e) {

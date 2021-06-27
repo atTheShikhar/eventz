@@ -46,6 +46,8 @@ const userSchema = new mongoose.Schema(
     }
 );
 
+userSchema.index({'$**': 'text'});
+
 userSchema.virtual("fullName").
     get(function () {
         return this.name.fname + " " + this.name.lname;

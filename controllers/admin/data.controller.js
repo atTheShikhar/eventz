@@ -4,13 +4,20 @@ const User = require('../../models/user.model');
 const Ticket = require('../../models/tickets.model');
 
 exports.getMessagesController = async (req,res) => {
-    const {type} = req.query;
+    const {type,search} = req?.query;
 
     let query = {};
     if(type === "Feedback")
         query.messageType = "Feedback"
     if(type === "Question")
         query.messageType = "Question"
+
+    if(search) {
+        query['$text'] = {
+            $search: `\"${search}\"`,
+            $caseSensitive: false
+        }
+    }
 
     try {
         const messages = await Messages.find(query);
@@ -49,7 +56,7 @@ exports.deleteMessageController = async (req,res) => {
 }
 
 exports.getEventsController = async (req,res) => {
-    const {type} = req.query;
+    const {type,search} = req?.query;
     const {userId,eventId} = req.body;
 
     let query = {}
@@ -64,6 +71,12 @@ exports.getEventsController = async (req,res) => {
     }
     if(eventId) {
         query._id = eventId;
+    }
+    if(search) {
+        query['$text'] = {
+            $search: `\"${search}\"`,
+            $caseSensitive: false
+        }
     }
 
     try {
@@ -82,6 +95,7 @@ exports.getEventsController = async (req,res) => {
             } = event;
 
             const address = `${eventAddress.apartment}, ${eventAddress.street}, ${eventAddress.district},${eventAddress.stateName} - (${eventAddress.pincode}),${eventAddress.country}`
+            const contact = `Phone: ${eventOrganiser.phone}, Email: ${eventOrganiser.email}`
 
             const createdAt = `${new Date(updated_at).toLocaleString()}`
             const price = eventDetails.isFree === "No" ? eventDetails.price : "FREE";
@@ -91,6 +105,7 @@ exports.getEventsController = async (req,res) => {
                 address: address,
                 createdAt: createdAt,
                 organiserName: eventOrganiser.organiserName,
+                organiserContact: contact,
                 noOfPeople: eventDetails.noOfPeople,
                 price: price,
                 status: status,
@@ -185,10 +200,20 @@ exports.updateEventController = async (req,res) => {
 }
 
 exports.getUsersController = async (req,res) => {
-    try {
-        const users = await User.find({});
-        const length = users.length;
+    const {search} = req?.query;
 
+    let query = {};
+    if(search) {
+        query['$text'] = {
+            $search: `\"${search}\"`,
+            $caseSensitive: false
+        }
+    }
+    
+    try {
+        const users = await User.find(query);
+        const length = users.length;
+        
         const userWithoutPassword = users.map((item,index) => {
             const createdAt = new Date(item.created_at).toLocaleString();
             return {

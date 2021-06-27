@@ -62,8 +62,8 @@ exports.eventImageController = async (req,res) => {
 
 exports.getEventsController = async (req,res) => {
     try {
-        const pageNum = parseInt(req.query.page,10) || 1; 
-        const {search,type} = req.query;
+        const pageNum = parseInt(req?.query?.page,10) || 1; 
+        const {search,type} = req?.query;
         const PAGE_SIZE = 12; // Maximum number of documents returned at each request
         const skip = (pageNum - 1) * PAGE_SIZE;
 

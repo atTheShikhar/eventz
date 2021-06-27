@@ -35,4 +35,6 @@ const messagesSchema = new mongoose.Schema(
     }
 )
 
+messagesSchema.index({'$**': 'text'});
+
 module.exports = mongoose.model("Messages",messagesSchema);
