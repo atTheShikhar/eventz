@@ -5,7 +5,7 @@ const generateTickets = async (count,userId,eventId) => {
     let createdTickets = [];
     for(let i=0;i<count;i++) {
         const ticketId = nanoid(10);
-        const newTicket = new Ticket({ticketId,userId,eventId});
+        const newTicket = new Ticket({ticketId,userId,eventId,availed: "No"});
         const val = await newTicket.save();
         createdTickets.push(val);
     } 

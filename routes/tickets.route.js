@@ -7,6 +7,7 @@ const {
 	verifyPaymentController, 
 	verifyPaymentWebhookController
 } = require('../controllers/tickets.controller');
+const { verifyTicketsController, attendanceController } = require('../controllers/user.controller');
 const authenticate = require('../middlewares/authenticate');
 const validTicketRequest = require('../middlewares/validTicketRequest');
 
@@ -23,4 +24,6 @@ router.post("/verify-payments-webhook",verifyPaymentWebhookController);
 
 router.post("/my-tickets",authenticate("requestedBy"),fetchTicketsController);
 
+router.post('/verify-tickets',authenticate("requestedBy"),verifyTicketsController);
+router.get('/attendance/:eventId',authenticate("organiserId"),attendanceController);
 module.exports = router;
