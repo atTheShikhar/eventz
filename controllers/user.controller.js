@@ -63,100 +63,80 @@ exports.changePasswordController = async (req,res) => {
 
 //Used by organisers to verify tickets for their events
 exports.verifyTicketsController = async (req,res) => {
-	const {requestedBy,ticketId,eventId} = req?.body;
-	if(requestedBy && ticketId && eventId)	
-	{
-		try{
-			const organiserData = await User.findById(requestedBy);
-			if(Boolean(organiserData)) {
-				const createdEvents = organiserData?.createdEvents?.map(elem => elem.toString());
+	const {ticketId,eventId} = req?.body;
 
-				if(createdEvents.includes(eventId)) {
-					const ticket = await Ticket.findOneAndUpdate(
-						{ ticketId,eventId },{ availed: "Yes" }
-					);
-					if(Boolean(ticket)) {
-						if(ticket?.availed === "No")
-							return res.status(200).json({message: "Valid Ticket!"});	
-						return res.status(400).json({error: "Ticket Already Availed!"});
-					}
-					return res.status(402).json({error: "Invalid Ticket!"});
-				}
+	if(ticketId == null) {
+		return res.status(400).json({error: "Invalid Request"})
+	}
 
-				return res.status(401).json({error: "You are not the organiser of this event!"})	
-			}
-			return res.status(401).json({error: "Invalid User!"});	
-		} catch(e) {
-			console.log(er);
-			return res.status(500).json({error: "Server Error"});
+	try{
+		const ticket = await Ticket.findOneAndUpdate(
+			{ ticketId,eventId },{ availed: "Yes" }
+		);
+		if(Boolean(ticket)) {
+			if(ticket?.availed === "No")
+				return res.status(200).json({message: "Valid Ticket!"});	
+			return res.status(400).json({error: "Ticket Already Availed!"});
 		}
-	} 
-	return res.status(400).json({error: "Invalid Request!"})
+		return res.status(402).json({error: "Invalid Ticket!"});
+	} catch(e) {
+		console.log(er);
+		return res.status(500).json({error: "Server Error"});
+	}
 }
 
 exports.attendanceController = async (req,res) => {
-	const eventId = req?.params?.eventId;
-	const {organiserId} = req?.body;
+	const {eventId} = req?.body;
 
     if(eventId == null) {
         return res.status(400).json({error: "Invalid Request!"});
     }
 
     try {
-		const organiserData = await User.findById(organiserId);
+		const tickets = await Ticket.find({eventId, availed: "Yes"});
+		
+		if(tickets.length > 0) {
+			
+			const ticketUsers = [...new Set(tickets.map(item => item.userId.toString()))] 
 
-		if(Boolean(organiserData)) {
-			const createdEvents = organiserData?.createdEvents?.map(elem => elem.toString());
-
-			if(createdEvents.includes(eventId)) {
-				const tickets = await Ticket.find({eventId, availed: "Yes"});
+			let bookingsData = [];
+			for(let i=0;i<ticketUsers.length;i++) {
+				const userId = ticketUsers[i];
 				
-				if(tickets.length > 0) {
-					
-					const ticketUsers = [...new Set(tickets.map(item => item.userId.toString()))] 
-
-					let bookingsData = [];
-					for(let i=0;i<ticketUsers.length;i++) {
-						const userId = ticketUsers[i];
-						
-						const userData = await User.findById(userId,{
-							name: 1,
-							email: 1,
-							_id: 1,
-							imageLocation: 1,
-							created_at: 1
-						});
-						
-						const ticketCount = tickets.reduce((count,item) => {
-							return (item.userId.toString() === userId) ? ++count : count;
-						},0);
-						
-						const ticketsAndUsers = {
-							ticketCount,
-							user: userData                    
-						}
-						bookingsData.push(ticketsAndUsers);
-					}
-					
-					const ticketBookings = bookingsData.map((item) => {
-						return {
-							ticketCount: item.ticketCount,
-							name: item.user.name.fname + " " + item.user.name.lname,
-							email: item.user.email,
-							_id: item.user._id,
-							// imageLocation: item?.user?.imageLocation,
-							joinedOn: new Date(item.user.created_at).toDateString()
-						}
-					});
-					
-					return res.status(200).json(ticketBookings);
+				const userData = await User.findById(userId,{
+					name: 1,
+					email: 1,
+					_id: 1,
+					imageLocation: 1,
+					created_at: 1
+				});
+				
+				const ticketCount = tickets.reduce((count,item) => {
+					return (item.userId.toString() === userId) ? ++count : count;
+				},0);
+				
+				const ticketsAndUsers = {
+					ticketCount,
+					user: userData                    
 				}
-				//No Bookings
-				return res.status(200).json([]);
+				bookingsData.push(ticketsAndUsers);
 			}
-			return res.status(401).json({error: "This is not your event"});
+			
+			const ticketBookings = bookingsData.map((item) => {
+				return {
+					ticketCount: item.ticketCount,
+					name: item.user.name.fname + " " + item.user.name.lname,
+					email: item.user.email,
+					_id: item.user._id,
+					// imageLocation: item?.user?.imageLocation,
+					joinedOn: new Date(item.user.created_at).toDateString()
+				}
+			});
+			
+			return res.status(200).json(ticketBookings);
 		}
-		return res.status(401).json({error: "User not found"});
+		//No Bookings
+		return res.status(200).json([]);
     } catch(e) {
         console.log(e);
         return res.status(500).json({error: "Server Error :("});

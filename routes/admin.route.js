@@ -16,7 +16,7 @@ const { validEmailId } = require('../helpers/auth.validation');
 const authenticateAdmin = require('../middlewares/authenticateAdmin');
 const validate = require('../middlewares/validate');
 const { getPaymentsController } = require('../controllers/admin/payments.controller');
-const { fetchTicketsController } = require('../controllers/tickets.controller');
+const { fetchTicketsController, getBookingsByEventsController } = require('../controllers/tickets.controller');
 const router = express.Router();
 
 
@@ -32,6 +32,8 @@ router.post('/admin/events',authenticateAdmin,getEventsController);
 router.post('/admin/event/update',authenticateAdmin,updateEventController);
 router.post('/admin/approve/event',authenticateAdmin,approveDeleteEventsController);
 router.post('/admin/delete/event',authenticateAdmin,approveDeleteEventsController);
+
+router.post('/admin/get-bookings/',authenticateAdmin,getBookingsByEventsController);
 
 router.get('/admin/users',authenticateAdmin,getUsersController);
 router.post('/admin/users/bookings',authenticateAdmin,fetchTicketsController);

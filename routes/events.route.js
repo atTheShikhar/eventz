@@ -13,6 +13,7 @@ const {
 const {
     getBookingsByEventsController
 } = require('../controllers/tickets.controller');
+const validOrganiser = require('../middlewares/validOrganiser');
 
 router.post("/create-event",
     authenticate("createdBy"),
@@ -34,6 +35,7 @@ router.post("/get-events-auth",
 
 router.post("/get-bookings",
     authenticate("requestedBy"),
+    validOrganiser,
     getBookingsByEventsController
 )
 
