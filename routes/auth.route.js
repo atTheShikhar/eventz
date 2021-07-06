@@ -33,7 +33,7 @@ router.post("/login",validLogin,validate,loginController);
 router.post("/forgetpassword",forgetPassword);
 router.put("/resetpassword",validPassword,validate,resetPassword);
 
-router.get("/user",authenticate("requestedBy"),getUserController);
+router.get("/user",authenticate("userId"),getUserController);
 
 router.post("/user/upload",authenticate("uploadedBy"),uploadProfilePicController);
 

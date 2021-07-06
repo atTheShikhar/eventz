@@ -3,7 +3,7 @@ const Ticket = require('../models/tickets.model');
 const uploadSingle = require('../middlewares/imageUpload');
 
 exports.getUserController = async (req,res) => {
-	const id = req.body.requestedBy;
+	const id = req?.body?.userId || req?.body?.requestedBy;
 	try {
 		const user = await User.findById(id,{hashed_password: 0});
 		// console.log(user);	
