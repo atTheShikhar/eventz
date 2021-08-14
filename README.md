@@ -11,6 +11,9 @@
 **Eventz** is an event creation and booking webapp that aims at solving event organization and ticketing problem related with an offline system. To understand the internals of this system , [read this](./assets/DOCUMENTATION.md).
 
 ## Installation
+
+> Make sure you have [NodeJS installed](https://nodejs.org/en/download/), in order to run this application.
+
 1. Clone this repository: 
 ```bash
 git clone https://github.com/atTheShikhar/eventz.git
