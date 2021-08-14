@@ -7,12 +7,8 @@
 <img src="https://img.shields.io/badge/DataBase-MongoDB-lightgreen?logo=mongoDB">
 </p>
 
-</br>
-
 ## Overview
 **Eventz** is an event creation and booking webapp that aims at solving event organization and ticketing problem related with an offline system. To understand the internals of this system , [read this](./assets/DOCUMENTATION.md).
-
-</br>
 
 ## Installation
 1. Clone this repository: 
@@ -85,8 +81,6 @@ cd ..
 	}
 	```
 
-</br>
-
 ## Running
 
 ### Server
@@ -104,8 +98,6 @@ npm start
 </br>
 
 ![](./assets/start.gif)
-
-</br>
 
 ## Demo
 
