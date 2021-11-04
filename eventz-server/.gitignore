@@ -1,4 +1,5 @@
 *.env
 configs/*.env
-public
+public/uploads/events/*
+public/uploads/users/*
 node_modules
